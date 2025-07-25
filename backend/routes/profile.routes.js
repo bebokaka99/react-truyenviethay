@@ -3,18 +3,17 @@
 const express = require("express");
 const router = express.Router();
 const { authenticateToken } = require("../middleware/auth");
-const authController = require("../controllers/auth.controller"); 
-const uploadAvatar = require("../middleware/upload_avatar");
+const authController = require("../controllers/auth.controller");
+const uploadAvatar = require("../middleware/upload_avatar"); 
 
-// Đã thay đổi từ /me sang /profile
+// Route để cập nhật thông tin hồ sơ của người dùng hiện tại
 router.patch(
   "/profile",
   authenticateToken,
   uploadAvatar.single("avatar"), 
-  authController.updateMe 
+  authController.updateMe
 );
 
-// Đã thay đổi từ /me sang /profile
 router.get("/profile", authenticateToken, authController.getMe);
 
 router.put(
