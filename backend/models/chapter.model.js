@@ -23,13 +23,16 @@ const ChapterModel = {
   },
 
   getChaptersByStoryId: async (truyen_id, limit, offset) => {
-    const [rows] = await db.execute(
-      `SELECT * FROM chuong 
-        WHERE truyen_id = ? AND is_chuong_mau = 0
-        ORDER BY so_chuong ASC
-        LIMIT ? OFFSET ?`,
-      [truyen_id, limit, offset]
-    );
+    let query = `SELECT * FROM chuong WHERE truyen_id = ? AND trang_thai = 'duyet' ORDER BY so_chuong ASC`;
+    const params = [truyen_id];
+
+    // Chỉ thêm LIMIT và OFFSET nếu chúng được cung cấp
+    if (limit !== undefined && offset !== undefined) {
+      query += ` LIMIT ? OFFSET ?`;
+      params.push(limit, offset);
+    }
+    
+    const [rows] = await db.execute(query, params);
     return rows;
   },
 
@@ -79,6 +82,19 @@ const ChapterModel = {
         1, // Đánh dấu đây là chương mẫu
       ]
     );
+  },
+  getChapterByStoryIdAndChapterNumber: async (storyId, chapterNumber) => {
+    try {
+      const [rows] = await db.query(
+        `SELECT * FROM chuong 
+         WHERE truyen_id = ? AND so_chuong = ? AND trang_thai = 'da_duyet'`, 
+        [storyId, chapterNumber]
+      );
+      return rows[0]; 
+    } catch (error) {
+      console.error("Error fetching chapter by story ID and chapter number:", error);
+      throw error;
+    }
   },
 };
 

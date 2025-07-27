@@ -1,6 +1,8 @@
+// backend/controllers/chapter.controller.js
+
 const ChapterModel = require("../models/chapter.model");
-const chapterService = require("../services/chapter.sevices"); 
-const slugify = require("../ultils/slugify"); 
+const chapterService = require("../services/chapter.sevices");
+const slugify = require("../ultils/slugify");
 
 // Tác giả thêm chương mới (chờ duyệt)
 const createChapter = async (req, res) => {
@@ -54,7 +56,7 @@ const approveOrRejectChapter = async (req, res) => {
 // lấy danh sach chuong theo id truyen có phân trang , 20 chuong/1 trang
 const getChaptersByStoryId = async (req, res) => {
   try {
-    const truyen_id = parseInt(req.params.id); 
+    const truyen_id = parseInt(req.params.id);
     const page = parseInt(req.query.page) || 1;
     const limit = 20;
     const offset = (page - 1) * limit;
@@ -91,6 +93,7 @@ const getChapterById = async (req, res) => {
     res.status(500).json({ message: "Lỗi server khi lấy chi tiết chương." });
   }
 };
+
 // Lấy chi tiết chương theo slug
 const getChapterBySlug = async (req, res) => {
   try {
@@ -109,7 +112,7 @@ const getChapterBySlug = async (req, res) => {
   }
 };
 
-// - Cập nhật chương
+// Cập nhật chương
 const updateChapter = async (req, res) => {
   try {
     const chapterId = req.params.id;
@@ -139,7 +142,7 @@ const updateChapter = async (req, res) => {
   }
 };
 
-//- Xóa chương
+// Xóa chương
 const deleteChapter = async (req, res) => {
   try {
     const chapterId = req.params.id;
@@ -157,6 +160,30 @@ const deleteChapter = async (req, res) => {
   }
 };
 
+// Hàm mới để lấy nội dung chương cụ thể theo storyId và chapterNumber
+const getChapterContentByStoryIdAndChapterNumber = async (req, res) => {
+  try {
+    const storyId = parseInt(req.params.storyId);
+    const chapterNumber = parseInt(req.params.chapterNumber);
+
+    if (isNaN(storyId) || isNaN(chapterNumber)) {
+      return res.status(400).json({ message: "ID truyện hoặc số chương không hợp lệ." });
+    }
+
+    const chapter = await ChapterModel.getChapterByStoryIdAndChapterNumber(storyId, chapterNumber);
+
+    if (!chapter) {
+      return res.status(404).json({ message: "Không tìm thấy chương này." });
+    }
+
+    res.status(200).json(chapter); // Trả về toàn bộ đối tượng chương
+  } catch (error) {
+    console.error("Lỗi khi lấy nội dung chương:", error);
+    res.status(500).json({ message: "Lỗi server khi lấy nội dung chương." });
+  }
+};
+
+
 module.exports = {
   createChapter,
   getChaptersByStoryId,
@@ -165,4 +192,5 @@ module.exports = {
   deleteChapter,
   approveOrRejectChapter,
   getChapterBySlug,
+  getChapterContentByStoryIdAndChapterNumber, 
 };

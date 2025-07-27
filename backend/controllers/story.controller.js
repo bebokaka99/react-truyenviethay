@@ -1,4 +1,5 @@
 const StoryModel = require("../models/story.model");
+const ChapterModel = require("../models/chapter.model");
 const storyService = require("../services/story.sevices");
 const generateSlug = require("../ultils/slugify"); 
 
@@ -219,6 +220,19 @@ const getStoriesByUserId = async (req, res) => {
     console.error("Lỗi khi lấy truyện theo user:", err);
     res.status(500).json({ message: "Lỗi server" });
   }
+}
+const getChaptersOfStory = async (req, res) => {
+    try {
+        const storyId = req.params.id;
+        const chapters = await ChapterModel.getChaptersByStoryId(storyId); 
+        if (!chapters || chapters.length === 0) {
+            return res.status(200).json({ message: "Truyện này chưa có chương nào.", chapters: [] });
+        }
+        res.status(200).json({ chapters });
+    } catch (error) {
+        console.error("Lỗi khi lấy danh sách chương của truyện:", error);
+        res.status(500).json({ message: "Lỗi khi lấy danh sách chương." });
+    }
 };
 
 module.exports = {
@@ -232,4 +246,5 @@ module.exports = {
   getMyStories,
   getStoryBySlug,
   getPublicStories,
+  getChaptersOfStory,
 };
